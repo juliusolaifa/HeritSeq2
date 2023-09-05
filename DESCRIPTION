@@ -1,11 +1,24 @@
 Package: HeritSeq2
-Title: What the Package Does (One Line, Title Case)
-Version: 1.0.0.
+Title: 
+  Estimating Heritability from 
+  High-Throughput Sequencing Data 
+  using Generalized Linear Mixed Models
+Version: 1.0.0
 Authors@R: 
     person("Julius", "Olaifa", , "julius.olaifa@okstate.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-3864-099X"))
-Description: What the package does (one paragraph).
+Description: Provides a comprehensive toolkit to apply Generalized Linear 
+    Mixed Models (GLMM) for estimating the heritability of high-throughput 
+    sequencing data. This package aims to streamline the analysis of 
+    large-scale sequencing datasets, enabling researchers to derive 
+    meaningful genetic insights from complex genomic data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: 
+    graphics,
+    stringr
