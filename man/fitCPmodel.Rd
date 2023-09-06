@@ -4,7 +4,7 @@
 \alias{fitCPmodel}
 \title{Fit Compound Poisson Generalized Linear Mixed-Effects Model to Count Matrix}
 \usage{
-fitCPmodel(countMatrix, X, slope = FALSE)
+fitCPmodel(countMatrix, X, slope = FALSE, parallel = 1)
 }
 \arguments{
 \item{countMatrix}{A matrix where rows represent features and columns represent samples.}
@@ -12,6 +12,8 @@ fitCPmodel(countMatrix, X, slope = FALSE)
 \item{X}{A numeric vector representing the covariate.}
 
 \item{slope}{Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.}
+
+\item{parallel}{Set number of OpenMP threads to evaluate the negative log-likelihood in parallel}
 }
 \value{
 A matrix with rows corresponding to features in \code{countMatrix} and columns representing the model parameters. Row names of the returned matrix match the row names of the input \code{countMatrix}.

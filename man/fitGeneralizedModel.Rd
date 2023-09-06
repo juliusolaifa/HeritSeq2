@@ -4,7 +4,7 @@
 \alias{fitGeneralizedModel}
 \title{Fit Generalized Linear Mixed-Effects Model to Count Matrix}
 \usage{
-fitGeneralizedModel(countMatrix, X, type, slope = FALSE)
+fitGeneralizedModel(countMatrix, X, type, slope = FALSE, parallel = 1)
 }
 \arguments{
 \item{countMatrix}{A matrix where rows represent features and columns represent samples.}
@@ -14,6 +14,8 @@ fitGeneralizedModel(countMatrix, X, type, slope = FALSE)
 \item{type}{A character string specifying the type of model to fit. Either "NB" (negative binomial) or "CP" (tweedie).}
 
 \item{slope}{Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.}
+
+\item{parallel}{integer Set number of OpenMP threads to evaluate the negative log-likelihood in parallel}
 }
 \value{
 A matrix with rows corresponding to features in \code{countMatrix} and columns representing the model parameters. Row names of the returned matrix match the row names of the input \code{countMatrix}.
