@@ -50,13 +50,15 @@ extractParams <- function(model, type, slope = FALSE) {
 #' @param X A numeric vector representing the covariate.
 #' @param type A character string specifying the type of model to fit. Either "NB" (negative binomial) or "CP" (tweedie).
 #' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
+#' @param parallel integer Set number of OpenMP threads to evaluate the negative log-likelihood in parallel
 #'
 #' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
 #'
 #' @seealso \code{\link[glmmTMB]{glmmTMB}}
 #'
 #' @keywords internal
-fitGeneralizedModel <- function(countMatrix, X, type, slope=FALSE) {
+fitGeneralizedModel <- function(countMatrix, X, type, slope=FALSE, parallel=1) {
+  print(parallel)
   IDs <- rownames(countMatrix)
   rdfx <- as.factor(sapply(strsplit(colnames(countMatrix), "_"), `[`, 1))
 
@@ -74,6 +76,10 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope=FALSE) {
     fullModel <- try({glmmTMB::glmmTMB(formula = formulaStr,
                               data = countData,
                               family = familyType,
+                              control = glmmTMB::glmmTMBControl(
+                                parallel=parallel,
+                                #optCtrl = list(iter.max=1e3,eval.max=1e3)
+                                ),
                               REML = TRUE)}, silent = TRUE)
     if (!inherits(fullModel, "try-error")) {
       return(extractParams(fullModel, type, slope))
@@ -108,14 +114,14 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope=FALSE) {
 #' @param countMatrix A matrix where rows represent features and columns represent samples.
 #' @param X A numeric vector representing the covariate.
 #' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
+#' @param parallel Set number of OpenMP threads to evaluate the negative log-likelihood in parallel
 #'
 #' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
 #' @export
 #'
 #' @seealso \code{\link{fitGeneralizedModel}}
-#'
-fitNBmodel <- function(countMatrix, X, slope=FALSE)
-  fitGeneralizedModel(countMatrix, X, "NB", slope=slope)
+fitNBmodel <- function(countMatrix, X, slope=FALSE, parallel=1)
+  fitGeneralizedModel(countMatrix, X, "NB", slope=slope, parallel=parallel)
 
 #' Fit Compound Poisson Generalized Linear Mixed-Effects Model to Count Matrix
 #'
@@ -124,11 +130,12 @@ fitNBmodel <- function(countMatrix, X, slope=FALSE)
 #' @param countMatrix A matrix where rows represent features and columns represent samples.
 #' @param X A numeric vector representing the covariate.
 #' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
+#' @param parallel Set number of OpenMP threads to evaluate the negative log-likelihood in parallel
 #'
 #' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
 #' @export
 #'
 #' @seealso \code{\link{fitGeneralizedModel}}
 #'
-fitCPmodel <- function(countMatrix, X, slope=FALSE)
-  fitGeneralizedModel(countMatrix, X, "CP", slope=slope)
+fitCPmodel <- function(countMatrix, X, slope=FALSE, parallel=1)
+  fitGeneralizedModel(countMatrix, X, "CP", slope=slope, parallel=parallel)
