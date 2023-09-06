@@ -110,6 +110,7 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope=FALSE) {
 #' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
 #'
 #' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
+#' @export
 #'
 #' @seealso \code{\link{fitGeneralizedModel}}
 #'
@@ -125,6 +126,7 @@ fitNBmodel <- function(countMatrix, X, slope=FALSE)
 #' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
 #'
 #' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
+#' @export
 #'
 #' @seealso \code{\link{fitGeneralizedModel}}
 #'
