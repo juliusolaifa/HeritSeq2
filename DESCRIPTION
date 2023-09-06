@@ -20,5 +20,13 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
+    glmmTMB,
     graphics,
-    stringr
+    MASS,
+    pbapply,
+    stats,
+    stringr,
+    tweedie
+Depends: 
+    R (>= 2.10)
+LazyData: true
