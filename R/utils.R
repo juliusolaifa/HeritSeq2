@@ -194,10 +194,10 @@ generateParamPlots <- function(paramMatrix, col="lightblue", border="black") {
 
   # Calculate the grid for plotting
   nRows <- ceiling(nParams/2)
-  op <- par(mfrow=c(nRows, 2), mar=c(4,4,2,1)+0.1) # Store original plotting parameters
+  op <- graphics::par(mfrow=c(nRows, 2), mar=c(4,4,2,1)+0.1) # Store original plotting parameters
 
   for (i in 1:nParams) {
-    hist(paramMatrix[, i], main = parse(text = columnNames[i]),
+    graphics::hist(paramMatrix[, i], main = parse(text = columnNames[i]),
          xlab = "Values", col = col, border = border)
   }
 
