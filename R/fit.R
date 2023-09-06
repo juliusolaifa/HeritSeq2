@@ -30,7 +30,7 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope=FALSE) {
   IDs <- rownames(countMatrix)
   rdfx <- as.factor(sapply(strsplit(colnames(countMatrix), "_"), `[`, 1))
 
-  familyType <- if(type == "NB")  "nbinom2" else "tweedie"
+  familyType <- if(type == "NB")  glmmTMB::nbinom2 else glmmTMB::tweedie
 
   fitModelForRow <- function(idx) {
     countVector <- countMatrix[idx, ]
