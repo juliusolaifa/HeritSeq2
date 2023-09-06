@@ -9,9 +9,9 @@ rgen01(strainSizes)
 \arguments{
 \item{strainSizes}{A numeric vector of integers.
 Each element denotes the number of samples within a corresponding strain.
-approximately equal numbers of 0's and 1's are generated within each strain.
-@noRd}
+approximately equal numbers of 0's and 1's are generated within each strain.}
 }
 \description{
 Generate binary covariate
 }
+\keyword{internal}
