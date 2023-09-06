@@ -4,7 +4,7 @@
 #'  Each element denotes the number of samples within a corresponding strain.
 #'  approximately equal numbers of 0's and 1's are generated within each strain.
 
-#'  @noRd
+#' @keywords internal
 rgen01 <- function(strainSizes) {
   unlist(lapply(strainSizes, function(x) sample(rep_len(c(0,1),length.out=x))))
 }
@@ -203,4 +203,9 @@ generateParamPlots <- function(paramMatrix, col="lightblue", border="black") {
 
   # Resetting the plotting parameters to original values
   par(op)
+}
+
+modelComparisonPlot <- function(fit1, fit2) {
+  graphics::plot(fit1, fit2)
+  graphics::abline(0,1)
 }

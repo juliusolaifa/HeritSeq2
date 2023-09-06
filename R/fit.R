@@ -1,3 +1,19 @@
+#' Extract Model Parameters
+#'
+#' Internal function to extract fixed effects, variance components, and other parameters
+#' from a glmmTMB model.
+#'
+#' @param model A fitted \code{glmmTMB} model object.
+#' @param type A character string specifying the type of the model, either "NB" for negative binomial
+#' or "CP" for compound Poisson.
+#' @param slope A logical indicating whether the model includes a slope for the random effect.
+#' Default is FALSE.
+#'
+#' @return A numeric vector of extracted model parameters.
+#'
+#' @keywords internal
+#'
+#' @importFrom glmmTMB fixef VarCorr sigma family_params
 extractParams <- function(model, type, slope = FALSE) {
   fixed <- glmmTMB::fixef(model)$cond
   a <- fixed[1]
@@ -26,6 +42,20 @@ extractParams <- function(model, type, slope = FALSE) {
     }
 }
 
+#' Fit Generalized Linear Mixed-Effects Model to Count Matrix
+#'
+#' This function fits a generalized linear mixed-effects model to each row of a provided count matrix using the `glmmTMB` package.
+#'
+#' @param countMatrix A matrix where rows represent features and columns represent samples.
+#' @param X A numeric vector representing the covariate.
+#' @param type A character string specifying the type of model to fit. Either "NB" (negative binomial) or "CP" (tweedie).
+#' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
+#'
+#' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
+#'
+#' @seealso \code{\link[glmmTMB]{glmmTMB}}
+#'
+#' @keywords internal
 fitGeneralizedModel <- function(countMatrix, X, type, slope=FALSE) {
   IDs <- rownames(countMatrix)
   rdfx <- as.factor(sapply(strsplit(colnames(countMatrix), "_"), `[`, 1))
@@ -71,8 +101,32 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope=FALSE) {
   return(params)
 }
 
+#' Fit Negative Binomial Generalized Linear Mixed-Effects Model to Count Matrix
+#'
+#' Fits a negative binomial generalized linear mixed-effects model to each row of a provided count matrix using the `fitGeneralizedModel` function.
+#'
+#' @param countMatrix A matrix where rows represent features and columns represent samples.
+#' @param X A numeric vector representing the covariate.
+#' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
+#'
+#' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
+#'
+#' @seealso \code{\link{fitGeneralizedModel}}
+#'
 fitNBmodel <- function(countMatrix, X, slope=FALSE)
   fitGeneralizedModel(countMatrix, X, "NB", slope=slope)
 
+#' Fit Compound Poisson Generalized Linear Mixed-Effects Model to Count Matrix
+#'
+#' Fits a compound Poisson generalized linear mixed-effects model to each row of a provided count matrix using the `fitGeneralizedModel` function.
+#'
+#' @param countMatrix A matrix where rows represent features and columns represent samples.
+#' @param X A numeric vector representing the covariate.
+#' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
+#'
+#' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
+#'
+#' @seealso \code{\link{fitGeneralizedModel}}
+#'
 fitCPmodel <- function(countMatrix, X, slope=FALSE)
   fitGeneralizedModel(countMatrix, X, "CP", slope=slope)
