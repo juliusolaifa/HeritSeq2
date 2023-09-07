@@ -42,28 +42,10 @@ extractParams <- function(model, type, slope = FALSE) {
   }
 }
 
-#' Fit Generalized Linear Mixed-Effects Model to Count Matrix
-#'
-#' This function fits a generalized linear mixed-effects model to each row of a provided count matrix using the `glmmTMB` package.
-#'
-#' @param countMatrix A matrix where rows represent features and columns represent samples.
-#' @param X A numeric vector representing the covariate.
-#' @param type A character string specifying the type of model to fit. Either "NB" (negative binomial) or "CP" (tweedie).
-#' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
-#' @param parallel integer Set number of OpenMP threads to evaluate the negative log-likelihood in parallel
-#'
-#' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
-#'
-#' @seealso \code{\link[glmmTMB]{glmmTMB}}
-#'
-#' @keywords internal
-fitGeneralizedModel <- function(countMatrix, X, type, slope=FALSE, parallel=1) {
-  print(parallel)
+fitModelCommon <- function(countMatrix, X, slope, type, parallel, returnWarnings = FALSE) {
   IDs <- rownames(countMatrix)
   rdfx <- as.factor(sapply(strsplit(colnames(countMatrix), "_"), `[`, 1))
-
   familyType <- if(type == "NB")  glmmTMB::nbinom2 else glmmTMB::tweedie
-
   fitModelForRow <- function(idx) {
     countVector <- countMatrix[idx, ]
     countData <- data.frame(expr = as.numeric(countVector),
@@ -73,25 +55,83 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope=FALSE, parallel=1) {
     else
       stats::formula(expr ~ 1 + covariate + (1 | strain))
 
-    fullModel <- try({glmmTMB::glmmTMB(formula = formulaStr,
-                                       data = countData,
-                                       family = familyType,
-                                       control = glmmTMB::glmmTMBControl(
-                                         parallel=parallel,
-                                         #optCtrl = list(iter.max=1e3,eval.max=1e3)
-                                       ),
-                                       REML = TRUE)}, silent = TRUE)
-    if (!inherits(fullModel, "try-error")) {
-      return(extractParams(fullModel, type, slope))
-    } else {
-      colLength <- ifelse(type == "NB", ifelse(slope, 6, 4), ifelse(slope, 7, 5))
-      message(paste("Fitting problem for feature", idx, "returning NA"))
-      return(rep(NA, colLength))
+    if (returnWarnings) {
+      model <- tryCatch({
+        glmmTMB::glmmTMB(formula = formulaStr,
+                         data = countData,
+                         family = familyType,
+                         control = glmmTMB::glmmTMBControl(parallel=parallel),
+                         REML = TRUE)
+        return(paste(idx, "No Warning"))
+      }, warning = function(w) {
+        return(paste(idx, w$message))
+      },
+      silent = TRUE)
+    }
+    else {
+      model <- try({
+        glmmTMB::glmmTMB(formula = formulaStr,
+                         data = countData,
+                         family = familyType,
+                         control = glmmTMB::glmmTMBControl(parallel=parallel),
+                         REML = TRUE)
+      },silent = TRUE)
+      if (!inherits(model, "try-error")) {
+        return(extractParams(model, type, slope))
+      } else {
+        colLength <- ifelse(type == "NB", ifelse(slope, 6, 4), ifelse(slope, 7, 5))
+        return(rep(NA, colLength))
+      }
     }
   }
+  #print(sapply(1:nrow(countMatrix), fitModelForRow))
+  return(pbapply::pblapply(1:nrow(countMatrix), fitModelForRow))
+}
 
-  # Apply the fitModelForRow function to each row
-  params <- t(pbapply::pbsapply(1:nrow(countMatrix), fitModelForRow))
+
+captureModelWarnings <- function(countMatrix, X, type, slope=FALSE, parallel=1, seed=NULL) {
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+  warnings_list <- fitModelCommon(countMatrix, X, slope, type, parallel, returnWarnings=TRUE)
+  # Extract only the unique warnings for each list element
+  warnings_list <- lapply(warnings_list, function(warn) unique(warn))
+  df <- data.frame(column=unlist(warnings_list))
+
+  # Extract the initial integer and the rest of the string
+  df$integer <- stringr::str_extract(df$column, "^[0-9]+")
+  df$warning <- sub("^[0-9]+ ", "", df$column)
+
+  rownames(df) <- df$integer
+  df$column <- NULL
+  df$integer <- NULL
+
+  return(df)
+}
+
+#' Fit Generalized Linear Mixed-Effects Model to Count Matrix
+#'
+#' This function fits a generalized linear mixed-effects model to each row of a provided count matrix using the `glmmTMB` package.
+#'
+#' @param countMatrix A matrix where rows represent features and columns represent samples.
+#' @param X A numeric vector representing the covariate.
+#' @param type A character string specifying the type of model to fit. Either "NB" (negative binomial) or "CP" (tweedie).
+#' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
+#' @param parallel integer Set number of OpenMP threads to evaluate the negative log-likelihood in parallel
+#' @param seed an integer for setting the seed
+
+#' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
+#'
+#' @seealso \code{\link[glmmTMB]{glmmTMB}}
+#'
+#' @keywords internal
+fitGeneralizedModel <- function(countMatrix, X, type, slope = FALSE, parallel = 1, seed = NULL) {
+  if (!is.null(seed)) set.seed(seed)
+
+  paramsList <- fitModelCommon(countMatrix, X, slope, type, parallel, returnWarnings = FALSE)
+
+  # Transforming the list into a matrix
+  params <- do.call(rbind, paramsList)
 
   # Define column names
   baseNames <- c("alpha", "beta")
@@ -102,10 +142,11 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope=FALSE, parallel=1) {
 
   colNames <- c(baseNames, if(type == "NB") nbNames else cpNames)
   colnames(params) <- colNames
-  rownames(params) <- IDs
+  rownames(params) <- rownames(countMatrix)
 
   return(params)
 }
+
 
 #' Fit Negative Binomial Generalized Linear Mixed-Effects Model to Count Matrix
 #'
@@ -115,13 +156,24 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope=FALSE, parallel=1) {
 #' @param X A numeric vector representing the covariate.
 #' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
 #' @param parallel Set number of OpenMP threads to evaluate the negative log-likelihood in parallel
+#' @param seed an integer for setting the seed
+#' @param reportWarning Logical if TRUE then the model is fit twice to obtain the warning logs
 #'
 #' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
 #' @export
 #'
 #' @seealso \code{\link{fitGeneralizedModel}}
-fitNBmodel <- function(countMatrix, X, slope=FALSE, parallel=1)
-  fitGeneralizedModel(countMatrix, X, "NB", slope=slope, parallel=parallel)
+fitNBmodel <- function(countMatrix, X, slope=FALSE, parallel=1, seed = NULL, reportWarning=FALSE) {
+  suppressWarnings({
+  fit <- fitGeneralizedModel(countMatrix, X, "NB", slope=slope, parallel=parallel, seed=seed)
+  output <- list(params = fit)
+  if(reportWarning) {
+    warn <- captureModelWarnings(countMatrix, X, "NB", slope=FALSE, parallel=1, seed=seed)
+    output$warnings <- warn
+  }
+  })
+  return(output)
+}
 
 #' Fit Compound Poisson Generalized Linear Mixed-Effects Model to Count Matrix
 #'
@@ -131,11 +183,23 @@ fitNBmodel <- function(countMatrix, X, slope=FALSE, parallel=1)
 #' @param X A numeric vector representing the covariate.
 #' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
 #' @param parallel Set number of OpenMP threads to evaluate the negative log-likelihood in parallel
+#' @param seed an integer for setting the seed
+#' @param reportWarning Logical if TRUE then the model is fit twice to obtain the warning logs
 #'
 #' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
 #' @export
 #'
 #' @seealso \code{\link{fitGeneralizedModel}}
 #'
-fitCPmodel <- function(countMatrix, X, slope=FALSE, parallel=1)
-  fitGeneralizedModel(countMatrix, X, "CP", slope=slope, parallel=parallel)
+fitCPmodel <- function(countMatrix, X, slope=FALSE, parallel=1, seed = NULL, reportWarning=FALSE){
+  if (parallel == 1) message("Consider training Compound Poisson model in parallel -- set : parallel > 1")
+  suppressWarnings({
+  fit <-  fitGeneralizedModel(countMatrix, X, "CP", slope=slope, parallel=parallel, seed=seed)
+  output <- list(fit = fit)
+  if(reportWarning) {
+    warn <- captureModelWarnings(countMatrix, X, "CP", slope=FALSE, parallel=1, seed=seed)
+    output$warnings <- warn
+  }
+  })
+  return(output)
+}
