@@ -21,25 +21,25 @@ extractParams <- function(model, type, slope = FALSE) {
   sigma2 <- attr(glmmTMB::VarCorr(model)$cond$strain, "stddev")^2
   phi <- glmmTMB::sigma(model)
 
-    if (slope) {
-      attrb <- attributes(glmmTMB::VarCorr(model)[[c("cond","strain")]])
-      sig11 <- attrb$stddev[1]^2
-      sig22 <- attrb$stddev[2]^2
-      cor <- attrb$correlation[1,2]
-      sig12 <- attrb$stddev[1] * attrb$stddev[2] * cor
-    }
+  if (slope) {
+    attrb <- attributes(glmmTMB::VarCorr(model)[[c("cond","strain")]])
+    sig11 <- attrb$stddev[1]^2
+    sig22 <- attrb$stddev[2]^2
+    cor <- attrb$correlation[1,2]
+    sig12 <- attrb$stddev[1] * attrb$stddev[2] * cor
+  }
 
-    if (type == "NB" && slope) {
-      return(c(a, b, sig11, sig22, sig12, phi))
-    } else if (type == "NB" && !slope) {
-      return(c(a, b, sigma2, phi))
-    } else if (type == "CP" && slope) {
-      p <- glmmTMB::family_params(model)
-      return(c(a, b, sig11, sig22, sig12, p, phi))
-    } else if(type == "CP" && !slope) {
-      p <- glmmTMB::family_params(model)
-      return(c(a, b, sigma2, p, phi))
-    }
+  if (type == "NB" && slope) {
+    return(c(a, b, sig11, sig22, sig12, phi))
+  } else if (type == "NB" && !slope) {
+    return(c(a, b, sigma2, phi))
+  } else if (type == "CP" && slope) {
+    p <- glmmTMB::family_params(model)
+    return(c(a, b, sig11, sig22, sig12, p, phi))
+  } else if(type == "CP" && !slope) {
+    p <- glmmTMB::family_params(model)
+    return(c(a, b, sigma2, p, phi))
+  }
 }
 
 #' Fit Generalized Linear Mixed-Effects Model to Count Matrix
@@ -74,13 +74,13 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope=FALSE, parallel=1) {
       stats::formula(expr ~ 1 + covariate + (1 | strain))
 
     fullModel <- try({glmmTMB::glmmTMB(formula = formulaStr,
-                              data = countData,
-                              family = familyType,
-                              control = glmmTMB::glmmTMBControl(
-                                parallel=parallel,
-                                #optCtrl = list(iter.max=1e3,eval.max=1e3)
-                                ),
-                              REML = TRUE)}, silent = TRUE)
+                                       data = countData,
+                                       family = familyType,
+                                       control = glmmTMB::glmmTMBControl(
+                                         parallel=parallel,
+                                         #optCtrl = list(iter.max=1e3,eval.max=1e3)
+                                       ),
+                                       REML = TRUE)}, silent = TRUE)
     if (!inherits(fullModel, "try-error")) {
       return(extractParams(fullModel, type, slope))
     } else {
