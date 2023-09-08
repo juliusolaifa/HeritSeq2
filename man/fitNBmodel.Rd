@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit.R
 \name{fitNBmodel}
 \alias{fitNBmodel}
-\title{Fit Negative Binomial Generalized Linear Mixed-Effects Model to Count Matrix}
+\title{Fit a Negative Binomial Model to a Count Matrix}
 \usage{
 fitNBmodel(countMatrix, X, slope = FALSE, parallel = 1, reportWarning = FALSE)
 }
@@ -11,18 +11,20 @@ fitNBmodel(countMatrix, X, slope = FALSE, parallel = 1, reportWarning = FALSE)
 
 \item{X}{A numeric vector representing the covariate.}
 
-\item{slope}{Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.}
+\item{slope}{Logical. If TRUE, the random effect will also have a slope component
+with the covariate. Default is FALSE.}
 
-\item{parallel}{Set number of OpenMP threads to evaluate the negative log-likelihood in parallel}
+\item{parallel}{Set number of OpenMP threads to evaluate the negative log-likelihood in parallel.}
 
-\item{reportWarning}{Logical if TRUE then the model is fit twice to obtain the warning logs}
+\item{reportWarning}{Logical. If TRUE then the model is fit twice to obtain the warning logs.}
 }
 \value{
-A matrix with rows corresponding to features in \code{countMatrix} and columns representing the model parameters. Row names of the returned matrix match the row names of the input \code{countMatrix}.
+A list containing the model parameters and, if \code{reportWarning} is TRUE,
+the warnings generated during model fitting.
 }
 \description{
-Fits a negative binomial generalized linear mixed-effects model to each row of a provided count matrix using the \code{fitGeneralizedModel} function.
+Fits a Negative Binomial model to each row of a provided count matrix.
 }
 \seealso{
-\code{\link{fitGeneralizedModel}}
+\code{\link{fitGeneralizedModel}}, \code{\link{captureModelWarnings}}
 }
