@@ -95,13 +95,20 @@ fitModelCommon <- function(countMatrix, X, slope, type, parallel, returnWarnings
       silent = TRUE)
     }
     else {
+      model_benchmark <- microbenchmark::microbenchmark(
       model <- try({
         glmmTMB::glmmTMB(formula = formulaStr,
                          data = countData,
                          family = familyType,
                          control = glmmTMB::glmmTMBControl(parallel=parallel),
                          REML = TRUE)
-      },silent = TRUE)
+      },silent = TRUE),
+      times = 1)
+      time_taken <- model_benchmark$time / 1e9 # Convert to seconds
+
+      # Print the time taken for this row
+      cat(paste("Gene", idx, "- Time taken for glmmTMB fit:", round(time_taken, 4), "seconds\n"))
+
       if (!inherits(model, "try-error")) {
         return(extractParams(model, type, slope))
       } else {
@@ -110,7 +117,8 @@ fitModelCommon <- function(countMatrix, X, slope, type, parallel, returnWarnings
       }
     }
   }
-  #print(sapply(1:nrow(countMatrix), fitModelForRow))
+
+  #results <- microbenchmark::microbenchmark()
   return(pbapply::pblapply(1:nrow(countMatrix), fitModelForRow))
 }
 
