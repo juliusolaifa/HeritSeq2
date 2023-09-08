@@ -4,14 +4,7 @@
 \alias{fitNBmodel}
 \title{Fit Negative Binomial Generalized Linear Mixed-Effects Model to Count Matrix}
 \usage{
-fitNBmodel(
-  countMatrix,
-  X,
-  slope = FALSE,
-  parallel = 1,
-  seed = NULL,
-  reportWarning = FALSE
-)
+fitNBmodel(countMatrix, X, slope = FALSE, parallel = 1, reportWarning = FALSE)
 }
 \arguments{
 \item{countMatrix}{A matrix where rows represent features and columns represent samples.}
@@ -21,8 +14,6 @@ fitNBmodel(
 \item{slope}{Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.}
 
 \item{parallel}{Set number of OpenMP threads to evaluate the negative log-likelihood in parallel}
-
-\item{seed}{an integer for setting the seed}
 
 \item{reportWarning}{Logical if TRUE then the model is fit twice to obtain the warning logs}
 }

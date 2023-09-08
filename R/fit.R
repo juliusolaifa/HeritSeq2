@@ -89,10 +89,7 @@ fitModelCommon <- function(countMatrix, X, slope, type, parallel, returnWarnings
 }
 
 
-captureModelWarnings <- function(countMatrix, X, type, slope=FALSE, parallel=1, seed=NULL) {
-  if (!is.null(seed)) {
-    set.seed(seed)
-  }
+captureModelWarnings <- function(countMatrix, X, type, slope=FALSE, parallel=1) {
   warnings_list <- fitModelCommon(countMatrix, X, slope, type, parallel, returnWarnings=TRUE)
   # Extract only the unique warnings for each list element
   warnings_list <- lapply(warnings_list, function(warn) unique(warn))
@@ -118,16 +115,13 @@ captureModelWarnings <- function(countMatrix, X, type, slope=FALSE, parallel=1, 
 #' @param type A character string specifying the type of model to fit. Either "NB" (negative binomial) or "CP" (tweedie).
 #' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
 #' @param parallel integer Set number of OpenMP threads to evaluate the negative log-likelihood in parallel
-#' @param seed an integer for setting the seed
 
 #' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
 #'
 #' @seealso \code{\link[glmmTMB]{glmmTMB}}
 #'
 #' @keywords internal
-fitGeneralizedModel <- function(countMatrix, X, type, slope = FALSE, parallel = 1, seed = NULL) {
-  if (!is.null(seed)) set.seed(seed)
-
+fitGeneralizedModel <- function(countMatrix, X, type, slope = FALSE, parallel = 1) {
   paramsList <- fitModelCommon(countMatrix, X, slope, type, parallel, returnWarnings = FALSE)
 
   # Transforming the list into a matrix
@@ -156,19 +150,18 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope = FALSE, parallel = 
 #' @param X A numeric vector representing the covariate.
 #' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
 #' @param parallel Set number of OpenMP threads to evaluate the negative log-likelihood in parallel
-#' @param seed an integer for setting the seed
 #' @param reportWarning Logical if TRUE then the model is fit twice to obtain the warning logs
 #'
 #' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
 #' @export
 #'
 #' @seealso \code{\link{fitGeneralizedModel}}
-fitNBmodel <- function(countMatrix, X, slope=FALSE, parallel=1, seed = NULL, reportWarning=FALSE) {
+fitNBmodel <- function(countMatrix, X, slope=FALSE, parallel=1, reportWarning=FALSE) {
   suppressWarnings({
-  fit <- fitGeneralizedModel(countMatrix, X, "NB", slope=slope, parallel=parallel, seed=seed)
+  fit <- fitGeneralizedModel(countMatrix, X, "NB", slope=slope, parallel=parallel)
   output <- list(params = fit)
   if(reportWarning) {
-    warn <- captureModelWarnings(countMatrix, X, "NB", slope=FALSE, parallel=1, seed=seed)
+    warn <- captureModelWarnings(countMatrix, X, "NB", slope=slope, parallel=parallel)
     output$warnings <- warn
   }
   })
@@ -183,7 +176,6 @@ fitNBmodel <- function(countMatrix, X, slope=FALSE, parallel=1, seed = NULL, rep
 #' @param X A numeric vector representing the covariate.
 #' @param slope Logical. If TRUE, the random effect will also have a slope component with the covariate. Default is FALSE.
 #' @param parallel Set number of OpenMP threads to evaluate the negative log-likelihood in parallel
-#' @param seed an integer for setting the seed
 #' @param reportWarning Logical if TRUE then the model is fit twice to obtain the warning logs
 #'
 #' @return A matrix with rows corresponding to features in `countMatrix` and columns representing the model parameters. Row names of the returned matrix match the row names of the input `countMatrix`.
@@ -191,13 +183,13 @@ fitNBmodel <- function(countMatrix, X, slope=FALSE, parallel=1, seed = NULL, rep
 #'
 #' @seealso \code{\link{fitGeneralizedModel}}
 #'
-fitCPmodel <- function(countMatrix, X, slope=FALSE, parallel=1, seed = NULL, reportWarning=FALSE){
+fitCPmodel <- function(countMatrix, X, slope=FALSE, parallel=1, reportWarning=FALSE){
   if (parallel == 1) message("Consider training Compound Poisson model in parallel -- set : parallel > 1")
   suppressWarnings({
-  fit <-  fitGeneralizedModel(countMatrix, X, "CP", slope=slope, parallel=parallel, seed=seed)
+  fit <-  fitGeneralizedModel(countMatrix, X, "CP", slope=slope, parallel=parallel)
   output <- list(fit = fit)
   if(reportWarning) {
-    warn <- captureModelWarnings(countMatrix, X, "CP", slope=FALSE, parallel=1, seed=seed)
+    warn <- captureModelWarnings(countMatrix, X, "CP", slope=slope, parallel=parallel)
     output$warnings <- warn
   }
   })
