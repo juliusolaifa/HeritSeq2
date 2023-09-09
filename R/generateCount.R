@@ -43,7 +43,7 @@ generateMeans <- function(strainSizes, alpha, beta, sigma, X) {
     paste0("S", x, "_", 1:(strainSizes[x]))
   })
 
-  return(list(means = means, num.x = num.x, col.names = col.names))
+  return(list(means = means, num.x = num.x, col.names = unlist(col.names)))
 }
 
 #' Generate Counts from Given Parameters and Model
@@ -63,15 +63,16 @@ generateMeans <- function(strainSizes, alpha, beta, sigma, X) {
 #' @return A matrix with counts. Each column corresponds to a different strain-sample and is named accordingly.
 #'
 #' @keywords internal
-generateReads <- function(strainSizes, alpha, beta, sigma, X, phi, countFun, ...) {
+generateReads <- function(strainSizes, alpha, beta, sigma, phi, X, countFun, ...) {
   mu <- generateMeans(strainSizes, alpha, beta, sigma, X)
-  # y ~ countFun(mu, phi, ...)
+  #y ~ countFun(mu, phi, ...)
   counts <- lapply(1:mu$num.x, function(x) {
     countFun(n = 1, mu = mu$means[x], phi, ...)
   })
   counts <- matrix(do.call(c, counts), nrow = 1)
   colnames(counts) <- mu$col.names
   return(counts)
+
 }
 
 #' Generate Negative Binomial Reads
@@ -92,7 +93,7 @@ generateReads <- function(strainSizes, alpha, beta, sigma, X, phi, countFun, ...
 #' @importFrom MASS rnegbin
 #' @keywords internal
 getNBReads <- function(strainSizes, alpha, beta, sigma, phi, X) {
-  generateReads(strainSizes, alpha, beta, sigma, X, phi, countFun = MASS::rnegbin)
+  generateReads(strainSizes, alpha, beta, sigma, phi, X, countFun = MASS::rnegbin)
 }
 
 #' Generate Compound Poisson (Tweedie) Reads
@@ -114,7 +115,7 @@ getNBReads <- function(strainSizes, alpha, beta, sigma, phi, X) {
 #' @importFrom tweedie rtweedie
 #' @keywords internal
 getCPReads <- function(strainSizes, alpha, beta, sigma, p, phi, X) {
-  generateReads(strainSizes, alpha, beta, sigma, X, phi, countFun = tweedie::rtweedie, xi = p)
+  generateReads(strainSizes, alpha, beta, sigma, phi, X, countFun = tweedie::rtweedie, xi = p)
 }
 
 #' Generate a Matrix of Read Counts for Multiple Features
