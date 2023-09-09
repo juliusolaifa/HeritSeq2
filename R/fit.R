@@ -86,9 +86,11 @@ fitModelCommon <- function(countMatrix, X, slope, type, parallel, returnWarnings
       glmmTMB::glmmTMB(formula = formulaStr,
                        data = countData,
                        family = familyType,
-                       control = glmmTMB::glmmTMBControl(parallel=parallel),
-                       REML = TRUE)
-    }
+                       control = glmmTMB::glmmTMBControl(optCtrl =
+                                                           list(iter.max=300,
+                                                                eval.max=400),
+                                                         parallel=parallel),
+                       REML = TRUE)}
 
     # handle warnings or model
     if (returnWarnings) {

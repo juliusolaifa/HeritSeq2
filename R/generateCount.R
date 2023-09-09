@@ -90,6 +90,7 @@ generateReads <- function(strainSizes, alpha, beta, sigma, X, phi, countFun, ...
 #'
 #' @seealso \code{\link[MASS]{rnegbin}}
 #' @importFrom MASS rnegbin
+#' @keywords internal
 getNBReads <- function(strainSizes, alpha, beta, sigma, phi, X) {
   generateReads(strainSizes, alpha, beta, sigma, X, phi, countFun = MASS::rnegbin)
 }
@@ -111,6 +112,7 @@ getNBReads <- function(strainSizes, alpha, beta, sigma, phi, X) {
 #'
 #' @seealso \code{\link[tweedie]{rtweedie}}
 #' @importFrom tweedie rtweedie
+#' @keywords internal
 getCPReads <- function(strainSizes, alpha, beta, sigma, p, phi, X) {
   generateReads(strainSizes, alpha, beta, sigma, X, phi, countFun = tweedie::rtweedie, xi = p)
 }
@@ -176,6 +178,7 @@ generateReadMatrix <- function(strainSizes, alphas, betas, sigma2s, phis, X,
 #'
 #' @seealso \code{\link[MASS]{rnegbin}}
 #' @importFrom MASS rnegbin
+#' @export
 getNBReadMatrix <- function(strainSizes, alphas, betas, sigma2s, phis, X)
   return(generateReadMatrix(strainSizes, alphas, betas, sigma2s, phis, X, "NB"))
 
@@ -198,6 +201,7 @@ getNBReadMatrix <- function(strainSizes, alphas, betas, sigma2s, phis, X)
 #'
 #' @seealso \code{\link[tweedie]{rtweedie}}
 #' @importFrom tweedie rtweedie
+#' @export
 getCPReadMatrix <- function(strainSizes, alphas, betas, sigma2s, phis, X, ps)
   return(generateReadMatrix(strainSizes, alphas, betas, sigma2s, phis, X, "CP", ps))
 

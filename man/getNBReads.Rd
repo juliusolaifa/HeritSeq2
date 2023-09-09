@@ -29,3 +29,4 @@ based on the provided parameters.
 \seealso{
 \code{\link[MASS]{rnegbin}}
 }
+\keyword{internal}

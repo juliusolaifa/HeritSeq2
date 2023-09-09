@@ -31,3 +31,4 @@ based on the provided parameters.
 \seealso{
 \code{\link[tweedie]{rtweedie}}
 }
+\keyword{internal}

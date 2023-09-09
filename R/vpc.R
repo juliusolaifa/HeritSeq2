@@ -82,12 +82,6 @@ computeVPC <- function(para, covariate, type) {
 #'
 #' @seealso \code{\link{computeVPC}}
 computeNBVPC <- function(para, group) {
-  # slope_check <- ifelse(is.null(dim(para)), length(para), dim(para)[2])
-  # if(slope_check == 4) {
-  #   computeVPC(para,0,"NB")
-  # } else {
-  #   computeVPC(para,1,"NB")
-  # }
   computeVPC(para,group,"NB")
 }
 
@@ -107,11 +101,5 @@ computeNBVPC <- function(para, group) {
 #'
 #' @seealso \code{\link{computeVPC}}
 computeCPVPC <- function(para,group) {
-  # slope_check <- ifelse(is.null(dim(para)), length(para), dim(para)[2])
-  # if(slope_check == 5) {
-  #   computeVPC(para,0,"CP")
-  # } else {
-  #   computeVPC(para,1,"CP")
-  # }
   computeVPC(para,group,"CP")
 }
