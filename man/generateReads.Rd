@@ -4,7 +4,7 @@
 \alias{generateReads}
 \title{Generate Counts from Given Parameters and Model}
 \usage{
-generateReads(strainSizes, alpha, beta, sigma, X, phi, countFun, ...)
+generateReads(strainSizes, alpha, beta, sigma, phi, X, countFun, ...)
 }
 \arguments{
 \item{strainSizes}{A numeric vector specifying the size of each strain.}
@@ -15,9 +15,9 @@ generateReads(strainSizes, alpha, beta, sigma, X, phi, countFun, ...)
 
 \item{sigma}{A numeric matrix or value for the random effects covariance structure.}
 
-\item{X}{A numeric vector or matrix of covariates.}
-
 \item{phi}{A numeric dispersion parameter passed to the \code{countFun}.}
+
+\item{X}{A numeric vector or matrix of covariates.}
 
 \item{countFun}{A function for generating count data. This function should accept parameters \code{n}, \code{mu}, and \code{phi} at minimum.}
 
