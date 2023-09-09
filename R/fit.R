@@ -81,13 +81,19 @@ fitModelCommon <- function(countMatrix, X, slope, type, parallel, returnWarnings
     else
       stats::formula(expr ~ 1 + covariate + (1 | strain))
 
+    # internal function to fit the model
+    fit_model <- function(formulaStr, countData, familyType, parallel) {
+      glmmTMB::glmmTMB(formula = formulaStr,
+                       data = countData,
+                       family = familyType,
+                       control = glmmTMB::glmmTMBControl(parallel=parallel),
+                       REML = TRUE)
+    }
+
+    # handle warnings or model
     if (returnWarnings) {
       model <- tryCatch({
-        glmmTMB::glmmTMB(formula = formulaStr,
-                         data = countData,
-                         family = familyType,
-                         control = glmmTMB::glmmTMBControl(parallel=parallel),
-                         REML = TRUE)
+         model_object <- fit_model(formulaStr, countData, familyType, parallel)
         return(paste(idx, "No Warning"))
       }, warning = function(w) {
         return(paste(idx, w$message))
@@ -97,11 +103,7 @@ fitModelCommon <- function(countMatrix, X, slope, type, parallel, returnWarnings
     else {
       model_benchmark <- microbenchmark::microbenchmark(
       model <- try({
-        glmmTMB::glmmTMB(formula = formulaStr,
-                         data = countData,
-                         family = familyType,
-                         control = glmmTMB::glmmTMBControl(parallel=parallel),
-                         REML = TRUE)
+        fit_model(formulaStr, countData, familyType, parallel)
       },silent = TRUE),
       times = 1)
       time_taken <- model_benchmark$time / 1e9 # Convert to seconds
@@ -198,7 +200,8 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope = FALSE, parallel = 
   return(params)
 }
 
-
+# This function handles whether  fitNBModel and fitCPModel should only fit model
+# or also capture warnings
 .fitModelHelper <- function(countMatrix, X, modelType, slope = FALSE, parallel = 1, reportWarning = FALSE) {
 
   if(modelType == "CP" && parallel == 1) {
