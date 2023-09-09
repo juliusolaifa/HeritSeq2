@@ -101,12 +101,12 @@ fitModelCommon <- function(countMatrix, X, slope, type, parallel, returnWarnings
       silent = TRUE)
     }
     else {
-      model_benchmark <- microbenchmark::microbenchmark(
-      model <- try({
-        fit_model(formulaStr, countData, familyType, parallel)
-      },silent = TRUE),
-      times = 1)
-      time_taken <- model_benchmark$time / 1e9 # Convert to seconds
+      fit_time <- system.time(
+        model <- try({
+          fit_model(formulaStr, countData, familyType, parallel)
+        },silent = TRUE)
+      )
+      time_taken <- fit_time["elapsed"]
 
       # Print the time taken for this row
       cat(paste("Gene", idx, "- Time taken for glmmTMB fit:", round(time_taken, 4), "seconds\n"))

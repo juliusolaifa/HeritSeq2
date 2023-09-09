@@ -25,7 +25,6 @@ Imports:
     glmmTMB,
     graphics,
     MASS,
-    microbenchmark,
     pbapply,
     stats,
     stringr,
