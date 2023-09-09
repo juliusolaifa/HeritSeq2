@@ -1,0 +1,93 @@
+---
+title: "HeritSeq2-vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{HeritSeq2-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, include = FALSE}
+library(HeritSeq2)
+```
+
+### Random Intercept Model
+
+Consider the hertitability equation for a random intercept model
+$$
+h^2_{nb}(x) = \frac{e^{\sigma^2}-1}{e^{\sigma^2}-1 + \phi e^{\sigma^2} + e^{-\alpha_{0} - \alpha_{1}x - \sigma^2/2}} 
+$$
+becomes,
+      
+$$
+h^2_{nb}(0) = \frac{e^{\sigma^2}-1}{e^{\sigma^2}-1 + \phi e^{\sigma^2} + e^{-\alpha_{0} - \sigma^2/2}} 
+$$
+and
+      
+$$
+h^2_{nb}(1) = \frac{e^{\sigma^2}-1}{e^{\sigma^2}-1 + \phi e^{\sigma^2} + e^{-\alpha_{0} -\alpha_1 - \sigma^2/2}} 
+$$
+
+#### 1. The behavior of $\sigma^2$
+  (a) When $x = 0$
+       - Iincreasing $\sigma$
+        
+          + As $\sigma$ increases, the exponential term $e^{\sigma^2}$ in both the numerator and denominator grows rapidly.
+          + This causes the function to approach 1 because the numerator $e^{\sigma^2}$ dominates the expression, and the "-1" terms become relatively insignificant.
+          + The effect of $\phi$ and $e^{-\alpha - \sigma^2/2}$ diminishes as σ becomes much larger.
+       - Decreasing $\sigma$
+          + When $\sigma$ decreases, the exponential term becomes smaller.
+          + The function tends to approach 0 because the "-1" terms in both the numerator and denominator have a more significant impact relative to $e^{\sigma^2}$.
+          + As σ approaches negative infinity, the function may approach 0 because $e^{-\alpha - \sigma^2/2}$ dominates the denominator.
+
+(b) When $x = 1$
+       - Similar to the previous case, $\sigma^2$ affects the function's behavior here as well. Increasing $\sigma^2$ makes the function approach 1, while decreasing $\sigma^2$ makes it approach 0.
+       
+In summary, $\sigma^2$ has a similar impact on the function for both $x = 0$ and $x = 1$. It influences the behavior of the function as described earlier, regardless of the specific value of $x$.
+
+#### 2. The behavior of $\phi$
+  (a) When $x = 0$
+       - Iincreasing $\phi$
+        
+          + The term $\phi e^{\sigma^2}$ in the denominator becomes more significant.
+          + The denominator increases, and the function tends to approach 0 because the numerator $e^{- \sigma^2/2} - 1$ is relatively smaller compared to the increasing denominator.
+       - Decreasing $\sigma$
+           + The term $\phi e^{\sigma^2}$ in the denominator becomes less significant.
+          + The denominator decreases, and the function tends to approach 1 because the numerator $e^{- \sigma^2/2} - 1$ dominates the expression.
+
+(b) When $x = 1$
+      - For $x = 1$
+
+       - Similar to the case when $x = 0$, as $\phi$ increases, the function tends to approach 0, and as $\phi$ decreases, the function tends to approach 1.
+       
+In summary, the parameter $\phi$ affects both cases similarly. Increasing $\phi$ tends to make the function approach 0, while decreasing $\phi$ tends to make it approach 1, regardless of the specific value of $x$.
+
+#### 3. The behavior of $\alpha_0$
+  (a) When $x = 0$
+       - Iincreasing $\alpha_0 > 0$
+          + The term in the denominator, $e^{-\alpha_0} \in (0,1)$. This becomes insignificant when other terms in the denominator are large enough
+       - Decreasing $\alpha < 0$
+           + The term $e^{-\alpha_0}$ becomes increasingly large
+
+(b) When $x = 1$
+       - Similar to the case when $x = 0$, 
+       
+In summary, the parameter $\alpha_0$ affects both cases similarly regardless of the specific value of $x$.
+
+#### 4. The behavior of $\alpha_1$
+  (a) When $x = 0$
+       - The term $-\alpha_1 x$ is absent and does not influence the value of $h_{nb}^2(0)$
+
+(b) When $x = 1$
+       - Increasing $-\alpha_1$,
+          + 
+       
+In summary, the parameter $\alpha_0$ affects both cases similarly regardless of the specific value of $x$.
+
