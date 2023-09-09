@@ -4,7 +4,7 @@
 \alias{computeCPVPC}
 \title{Compute the Variance Partition Coefficient (VPC) for Compound Poisson Model}
 \usage{
-computeCPVPC(para, group)
+computeCPVPC(para, group = 0)
 }
 \arguments{
 \item{para}{A matrix or vector of model parameters for the Compound Poisson model.}

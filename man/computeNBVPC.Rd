@@ -4,7 +4,7 @@
 \alias{computeNBVPC}
 \title{Compute the Variance Partition Coefficient (VPC) for Negative Binomial Model}
 \usage{
-computeNBVPC(para, group)
+computeNBVPC(para, group = 0)
 }
 \arguments{
 \item{para}{A matrix or vector of model parameters for the Negative Binomial model.}

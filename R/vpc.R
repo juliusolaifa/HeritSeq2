@@ -81,7 +81,8 @@ computeVPC <- function(para, covariate, type) {
 #' computeNBVPC(sample_params,0)
 #'
 #' @seealso \code{\link{computeVPC}}
-computeNBVPC <- function(para, group) {
+computeNBVPC <- function(para, group=0) {
+  cat("Estimating VPC with NB for group", group)
   computeVPC(para,group,"NB")
 }
 
@@ -100,6 +101,7 @@ computeNBVPC <- function(para, group) {
 #' computeCPVPC(sample_params,0)
 #'
 #' @seealso \code{\link{computeVPC}}
-computeCPVPC <- function(para,group) {
+computeCPVPC <- function(para,group=0) {
+  cat("Estimating VPC with CP for group", group)
   computeVPC(para,group,"CP")
 }

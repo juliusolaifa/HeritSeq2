@@ -139,7 +139,7 @@ getCPReads <- function(strainSizes, alpha, beta, sigma, p, phi, X) {
 #' @keywords internal
 generateReadMatrix <- function(strainSizes, alphas, betas, sigma2s, phis, X,
                                method = c("NB", "CP"), ps = NULL) {
-  print(paste("Generating with", method))
+  cat("Generating with", method)
 
   method <- match.arg(method)
 
