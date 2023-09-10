@@ -11,7 +11,7 @@
 #'
 #' @keywords internal
 computeVPC <- function(para, covariate, type) {
-
+  print(paste("Estimating VPC with", type, "for group", covariate))
   # Inner function to compute VPC for a single row of parameters
   compute1VPC <- function(alpha, beta, sig11, sig22, sig12, phi, x, power = NULL) {
     if(is.na(sig11) || sig11 < 0 || sig22 < 0 || phi <= 0) {
@@ -82,7 +82,7 @@ computeVPC <- function(para, covariate, type) {
 #'
 #' @seealso \code{\link{computeVPC}}
 computeNBVPC <- function(para, group=0) {
-  print(paste("Estimating VPC with NB for group", group))
+  #(paste("Estimating VPC with NB for group", group))
   computeVPC(para,group,"NB")
 }
 
@@ -102,6 +102,6 @@ computeNBVPC <- function(para, group=0) {
 #'
 #' @seealso \code{\link{computeVPC}}
 computeCPVPC <- function(para,group=0) {
-  cat("Estimating VPC with CP for group", group)
+  #("Estimating VPC with CP for group", group)
   computeVPC(para,group,"CP")
 }
