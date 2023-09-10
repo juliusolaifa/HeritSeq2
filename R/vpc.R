@@ -82,7 +82,7 @@ computeVPC <- function(para, covariate, type) {
 #'
 #' @seealso \code{\link{computeVPC}}
 computeNBVPC <- function(para, group=0) {
-  cat("Estimating VPC with NB for group", group)
+  print(paste("Estimating VPC with NB for group", group))
   computeVPC(para,group,"NB")
 }
 

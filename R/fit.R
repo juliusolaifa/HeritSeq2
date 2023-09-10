@@ -240,7 +240,7 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope = FALSE, parallel = 
 #' @seealso \code{\link{fitGeneralizedModel}}, \code{\link{captureModelWarnings}}
 #' @export
 fitNBmodel <- function(countMatrix, X, slope = FALSE, parallel = 1, reportWarning = FALSE) {
-  cat("Fitting with NB")
+  print("Fitting with NB")
   .fitModelHelper(countMatrix, X, "NB", slope, parallel, reportWarning)
 }
 
@@ -262,6 +262,6 @@ fitNBmodel <- function(countMatrix, X, slope = FALSE, parallel = 1, reportWarnin
 #' @seealso \code{\link{fitGeneralizedModel}}, \code{\link{captureModelWarnings}}
 #' @export
 fitCPmodel <- function(countMatrix, X, slope = FALSE, parallel = 1, reportWarning = FALSE) {
-  cat("Fitting with CP")
+  print("Fitting with CP")
   .fitModelHelper(countMatrix, X, "CP", slope, parallel, reportWarning)
 }
