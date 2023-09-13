@@ -13,7 +13,8 @@ extractParams(model, type, slope = FALSE)
 or "CP" for compound Poisson.}
 
 \item{slope}{A logical indicating whether the model includes a slope for the random effect.
-Default is FALSE.}
+Default is FALSE.
+::}
 }
 \value{
 A numeric vector of extracted model parameters.

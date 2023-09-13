@@ -8,7 +8,7 @@
 #' or "CP" for compound Poisson.
 #' @param slope A logical indicating whether the model includes a slope for the random effect.
 #' Default is FALSE.
-#'
+#'::
 #' @return A numeric vector of extracted model parameters.
 #'
 #' @keywords internal
@@ -69,8 +69,18 @@ extractParams <- function(model, type, slope = FALSE) {
 #' \code{\link{captureModelWarnings}}, \code{\link{fitGeneralizedModel}}
 #' @export
 fitModelCommon <- function(countMatrix, X, slope, type, parallel, returnWarnings = FALSE) {
+
+  if(is.null(rownames(countMatrix))){
+    row.names(countMatrix) <- paste("Gene", 1:dim(countMatrix)[1])
+  }
+
   IDs <- rownames(countMatrix)
+  if(is.null(colnames(countMatrix))) {
+    stop("Column names should be random effect")
+  }
+
   rdfx <- as.factor(sapply(strsplit(colnames(countMatrix), "_"), `[`, 1))
+
   familyType <- if(type == "NB")  glmmTMB::nbinom2 else glmmTMB::tweedie
   fitModelForRow <- function(idx) {
     countVector <- countMatrix[idx, ]
@@ -114,10 +124,10 @@ fitModelCommon <- function(countMatrix, X, slope, type, parallel, returnWarnings
       cat(paste("Gene", idx, "- Time taken for glmmTMB fit:", round(time_taken, 4), "seconds\n"))
 
       if (!inherits(model, "try-error")) {
-        return(extractParams(model, type, slope))
+        return(c(time_taken, extractParams(model, type, slope)))
       } else {
         colLength <- ifelse(type == "NB", ifelse(slope, 6, 4), ifelse(slope, 7, 5))
-        return(rep(NA, colLength))
+        return(c(time_taken, rep(NA, colLength)))
       }
     }
   }
@@ -190,7 +200,7 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope = FALSE, parallel = 
   params <- do.call(rbind, paramsList)
 
   # Define column names
-  baseNames <- c("alpha", "beta")
+  baseNames <- c("time", "alpha", "beta")
   nbNames <- if(slope) c("sigma[11]^2", "sigma[22]^2", "sigma[12]", "phi")
   else c("sigma^2", "phi")
   cpNames <- if(slope) c("sigma[11]^2", "sigma[22]^2", "sigma[12]", "p", "phi")
@@ -211,11 +221,15 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope = FALSE, parallel = 
     message("Consider training Compound Poisson model in parallel -- set : parallel > 1")
   }
 
+  if(parallel > 1) {
+    parallel <- min(parallel::detectCores(), parallel)
+  }
+
   suppressWarnings({
     fit <- fitGeneralizedModel(countMatrix, X, modelType, slope = slope, parallel = parallel)
     output <- list(params = fit)
     if(reportWarning) {
-      warn <- captureModelWarnings(countMatrix, X, modelType, slope = FALSE, parallel = 1)
+      warn <- captureModelWarnings(countMatrix, X, modelType, slope = slope, parallel = parallel)
       output$warnings <- warn
     }
   })
@@ -242,7 +256,8 @@ fitGeneralizedModel <- function(countMatrix, X, type, slope = FALSE, parallel = 
 #' @export
 fitNBmodel <- function(countMatrix, X, slope = FALSE, parallel = 1, reportWarning = FALSE) {
   # print(paste("Fitting with NB", slope))
-  .fitModelHelper(countMatrix, X, "NB", slope, parallel, reportWarning)
+  result <- .fitModelHelper(countMatrix, X, "NB", slope, parallel, reportWarning)
+  return(list("params" = result$params[,-1], "time_taken" = result$params[,1], "warnings" = result$warnings))
 }
 
 
@@ -264,5 +279,6 @@ fitNBmodel <- function(countMatrix, X, slope = FALSE, parallel = 1, reportWarnin
 #' @export
 fitCPmodel <- function(countMatrix, X, slope = FALSE, parallel = 1, reportWarning = FALSE) {
   # print(paste("Fitting with CP", slope))
-  .fitModelHelper(countMatrix, X, "CP", slope, parallel, reportWarning)
+  result <- .fitModelHelper(countMatrix, X, "CP", slope, parallel, reportWarning)
+  return(list("params" = result$params[,-1], "time_taken" = result$params[,1], "warnings" = result$warnings))
 }
